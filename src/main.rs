@@ -1,5 +1,5 @@
 use std::env;
-use std::net::TcpStream;
+use std::net::{SocketAddr, TcpStream};
 use std::time::{Duration, Instant};
 
 fn main() {
@@ -16,12 +16,17 @@ fn main() {
 }
 
 fn check_peer(addr: &str) {
+    let socket_addr: SocketAddr = match addr.parse() {
+        Ok(a) => a,
+        Err(_) => {
+            println!("{}: invalid address", addr);
+            return;
+        }
+    };
+
     let start = Instant::now();
 
-    let result = TcpStream::connect_timeout(
-        &addr.parse().expect("invalid address"),
-        Duration::from_secs(3),
-    );
+    let result = TcpStream::connect_timeout(&socket_addr, Duration::from_secs(3));
 
     match result {
         Ok(_) => {
